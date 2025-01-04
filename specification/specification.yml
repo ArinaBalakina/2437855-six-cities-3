@@ -1,326 +1,75 @@
-openapi: 3.0.3
+openapi: 3.0.1
 info:
-  title: API сервер для проекта «Шесть городов».
-  description: API сервер для проекта «Шесть городов».
-  version: 1.0.0
-servers:
-  - url: 'https'
-
-paths:
-  /offers:
-    post:
-      tags:
-        - offers
-      summary: Создание нового предложения
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/createOffers'
-        required: true
-      responses:
-        201:
-          description: Новое предложения создано
-        400:
-          description: Введенные данные не прошли валидацию
-        401:
-          description: Пользователь не авторизован
-      description: Создание нового предложения
-
-    put:
-      tags:
-        - offers
-      summary: Редактирование предложения
-      responses:
-        200:
-          description: Предложение успешно отредактировано
-        400:
-          description: Пользователь может редактировать только свои предложения
-        401:
-          description: Пользователь не авторизован
-      description: Редактирование существующего предложения
-
-    delete:
-      tags:
-        - offers
-      summary: Удаление предложения по аренде
-      responses:
-        200:
-          description: Предложение успешно удалено
-        400:
-          description: Пользователь может удалять только свои предложения
-        401:
-          description: Пользователь не авторизован
-      description: Удаление существующего объявления
-
-  /offers?countRequests=60:
-    get:
-      parameters:
-        - name: countRequests
-          in: query
-          description: Количество запрашиваемых предложений (Опционально)
-          required: false
-          schema:
-            type: integer
-      tags:
-        - offers
-      summary: Список предложений по аренде
-      responses:
-        200:
-          description: Успешно получен список предложений
-        401:
-          description: Пользователь не авторизован
-
-  /offers/details:
-    get:
-      tags:
-        - offers
-      summary: Детальная информация по предложению
-      responses:
-        200:
-          description: Детальная информация по предложению успешно получена
-
-  /comments?count=50:
-    get:
-      tags:
-        - comments
-      summary: Список комментариев для предложения
-      responses:
-        200:
-          description: Список комментариев для объявления успешно получен. Если пользователь не вводил количество комментариев, то по умолчанию выводится 50.
-    post:
-      tags:
-        - comments
-      summary: Добавление комментария
-      responses:
-        201:
-          description: Успешное добавление комментария
-        400:
-          description: Введенные данные не прошли валидацию
-        401:
-          description: Пользователь не авторизован
-
-  /users:
-    post:
-      tags:
-        - users
-      summary: Создание нового пользователя
-      requestBody:
-        description: Информация для создания нового пользователя.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/createUser'
-        required: true
-
-      responses:
-        201:
-          description: Успешное создание нового пользователя
-        400:
-          description: Введенные данные не прошли валидацию
-        401:
-          description: Пользователь не авторизован
-        409:
-          description: Пользователь с таким email уже существует
-
-
-  /users/login:
-    post:
-      tags:
-        - users
-      summary: Вход в закрытую часть приложения
-      description: Авторизует пользователя на основе логина и пароля
-      responses:
-        201:
-          description: Успешная авторизация
-        400:
-          description: Некорректная валидация
-
-    get:
-      tags:
-        - users
-      summary: Проверка состояния пользователя
-      description: Возвращает информацию по авторизованному пользователю
-      responses:
-        200:
-          description: Успешная проверка
-        400:
-          description: Введенные данные не прошли валидацию
-
-  /termination:
-    get:
-      tags:
-        - users
-      summary: Выход из закрытой части приложения (только если авторизация выполняется на основе сессий)
-      responses:
-        200:
-          description: Успешный выход
-        401:
-          description: Пользователь не авторизован
-
-  /offers/premium:
-    get:
-      tags:
-        - offers
-      summary: Премиальные предложения для города
-      responses:
-        200:
-          description: Возвращает не более 3 премиальных предложения
-
-  /offers/favorite:
-    get:
-      tags:
-        - offers
-      summary: Список избранных предложений
-      responses:
-        200:
-          description: Возвращает список избранных предложений
-        401:
-          description: Пользователь не авторизован
-    post:
-      tags:
-        - offers
-      summary: Добавление предложения в избранное
-      responses:
-        201:
-          description: Добавление прошло успешно
-        401:
-          description: Пользователь не авторизован
-    delete:
-      tags:
-        - offers
-      summary: Удаление предложения из избранного
-      responses:
-        200:
-          description: Удаление прошло успешно
-        401:
-          description: Пользователь не авторизован
-
+  title: "API сервер для проекта six-cities"
+  version: "1.0.0"
+  contact:
+    name: Tkachenko Maksim
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 
 tags:
   - name: users
-    description: Для действий с пользователями
+    description: Действия с пользователем.
   - name: offers
-    description: Действия с объявлениями
+    description: Действия с объявлениями.
   - name: comments
-    description: Действия с комментариями
+    description: Действия с комментариями.
+  - name: favorites
+    description: Действия с избранными обьявлениями.
+
+paths:
+  /users/register:
+    post:
+      $ref: ./operations/registerUser.yml
+  /users/login:
+    post:
+      $ref: ./operations/loginUser.yml
+    get:
+      $ref: ./operations/checkUser.yml
+  /users/logout:
+    get:
+      $ref: ./operations/logoutUser.yml
+  /offers:
+    get:
+      $ref: ./operations/getOffers.yml
+    post:
+      $ref: ./operations/createOffer.yml
+  /offers/[offerId]:
+    get:
+      $ref: ./operations/getOfferByOfferId.yml
+    put:
+      $ref: ./operations/updateOffer.yml
+    delete:
+      $ref: ./operations/deleteOfferByOfferId.yml
+  /comments/[offerId]:
+    get:
+      $ref: ./operations/getCommentsByOfferId.yml
+    post:
+      $ref: ./operations/createCommentByOfferId.yml
+  /favorites/[userId]:
+    get:
+      $ref: ./operations/getFavoriteOffers.yml
+    patch:
+      $ref: ./operations/changeFavoriteOffers.yml
+
+
 
 components:
   schemas:
-    createUser:
-      type: object
-
-      properties:
-        email:
-          type: string
-          example: "keks@htmlacademy.ru"
-
-        name:
-          type: string
-          example: 'Иван Петров'
-
-        password:
-          type: string
-          example: "123456"
-
-        avatar?:
-          type: string
-          example: 'studio-01.jpg'
-
-        useType:
-          type: string
-          example: 'pro'
-
-    user:
-      type: object
-
-      properties:
-        id:
-          type: string
-          example: "6329c3d6a04ab1061c6425ea"
-
-        email:
-          type: string
-          example: 'keks@htmlacademy.ru'
-
-    createOffers:
-      type: object
-      properties:
-        name:
-          type: string
-          example:  "Ключ к успеху"
-
-        description:
-          type: string
-          example: "Мы предлагаем квартиры и дома в лучших районах города, чтобы вы могли наслаждаться комфортом и уютом своего нового дома."
-
-        date:
-          type: string
-          format: date
-          example: '2023.04.09'
-
-        city:
-          type: string
-          example: 'Paris'
-
-        previewImg:
-          type: string
-          example: "studio-photos.jpg"
-
-        images:
-          type: array
-          items:
-            type: string
-          example: [ "pic1.jpg;","pic2.jpg;"]
-
-        flagIsPremium:
-          type: boolean
-
-        flagIsFavourites:
-          type: boolean
-
-        rating:
-          type: number
-          example: 5
-
-        typeHousing:
-          type: string
-          example: 'House'
-
-        countRooms:
-          type: number
-          example: 2
-
-        countPeople:
-          type: number
-          example: 2
-
-        price:
-          type: number
-          example: 10000
-
-        conveniences:
-          type: string
-          example: 'Breakfast'
-
-        author:
-          type: string
-          example: "Петр Иванов"
-
-        countComments:
-          type: number
-          example: 1
-
-        coordinates:
-          type: string
-          example:
-
-    createComments:
-      type: object
-      properties:
-        text:
-          type: string
-          example: "Супер"
-        author:
-          type: string
-          example: 'Иван Петров'
+    $ref: ./schemas/all.yml
+  responses:
+    400:
+      description: Ресурс не прошел валидацию
+    401:
+      description: Ресурс не доступен
+    403:
+      description: Ресурс не доступен
+    404:
+      description: Ресурс не найден
+    500:
+      description: Сервис не работает
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

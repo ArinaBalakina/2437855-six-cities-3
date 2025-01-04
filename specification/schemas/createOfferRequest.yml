@@ -1,0 +1,20 @@
+title: CreateOfferRequest
+type: object
+description: Создание нового предложения
+required:
+  - title
+  - description
+  - postDate
+  - city
+  - preview
+  - images
+  - isPremium
+  - houseType
+  - room
+  - guest
+  - price
+  - conveniences
+  - userId
+  - coords
+$ref: ./dto/createOfferDto.yml
+
