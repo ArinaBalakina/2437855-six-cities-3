@@ -1,40 +1,40 @@
-import { injectable } from 'inversify';
-import { CommandParser } from './command-parser.js';
-import { Command } from './commands/command.interface.js';
+import {Command} from './commands/command.interface.js';
+import {CommandParser} from './command-parser.js';
 
 type CommandCollection = Record<string, Command>;
 
-@injectable()
 export class CLIApplication {
-  private commandsCollection: CommandCollection = {};
-  private defaultCommand: string = '--help';
+  private commands: CommandCollection = {};
 
-  public register(commands: Command[]): void {
-    commands.forEach((command) => {
-      if (Object.hasOwn(this.commandsCollection, command.getName())) {
-        throw new Error(`Command ${command.getName()}: is alredy exist`);
-      } else {
-        this.commandsCollection[command.getName()] = command;
+  constructor(private readonly defaultCommand: string = '--help') {}
+
+  public registerCommands(commandList: Command[]): void {
+    commandList.forEach((command) => {
+      if (Object.hasOwn(this.commands, command.getName())) {
+        throw new Error(`Command ${command.getName()} is already registered`);
       }
+
+      this.commands[command.getName()] = command;
     });
   }
 
-  private getDefaultCommand(): Command | never {
-    if (!Object.hasOwn(this.commandsCollection, this.defaultCommand)) {
-      throw new Error(`this defauilt command [${this.defaultCommand}]: is not registered`);
-    }
-    return this.commandsCollection[this.defaultCommand];
+  public getCommand(commandName: string): Command {
+    return this.commands[commandName] ?? this.getDefaultCommand();
   }
 
-  private getCommand(commandName: string): Command {
-    return this.commandsCollection[commandName] ?? this.getDefaultCommand();
+  public getDefaultCommand(): Command | never {
+    if (!this.commands[this.defaultCommand]) {
+      throw new Error(`The default command (${this.defaultCommand}) is not registered.`);
+    }
+
+    return this.commands[this.defaultCommand];
   }
 
   public processCommand(argv: string[]): void {
     const parsedCommand = CommandParser.parse(argv);
     const [commandName] = Object.keys(parsedCommand);
     const command = this.getCommand(commandName);
-    const commandArgiments = parsedCommand[commandName] ?? [];
-    command.execute(...commandArgiments);
+    const commandArguments = parsedCommand[commandName] ?? [];
+    command.execute(...commandArguments);
   }
 }
